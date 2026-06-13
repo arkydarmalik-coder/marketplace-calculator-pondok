@@ -304,6 +304,62 @@
     </div>
   </div>
 
+  <!-- Shopee-only: Status & Program Seller -->
+  <div class="card" id="cardStatus">
+    <h2>🏷️ Status & Program Seller <span style="font-size:0.75rem; color:var(--muted); font-weight:400;">(Shopee only)</span></h2>
+
+    <div class="form-group">
+      <label>Status Penjual</label>
+      <select id="statusPenjual">
+        <option value="non-star">Non-Star</option>
+        <option value="star" selected>Star / Star+</option>
+        <option value="mall">Shopee Mall</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ikut Promo XTRA?</label>
+        <select id="promoXtra">
+          <option value="tidak" selected>Tidak</option>
+          <option value="ya">Ya (+4%)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ikut Promo Live XTRA?</label>
+        <select id="promoLive">
+          <option value="tidak" selected>Tidak</option>
+          <option value="ya">Ya (free dgn Promo XTRA)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ikut GO XTRA (Gratis Ongkir)?</label>
+        <select id="promoGo">
+          <option value="tidak" selected>Tidak</option>
+          <option value="ya">Ya (+4%)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ukuran Produk</label>
+        <select id="ukuranProduk">
+          <option value="biasa" selected>Ukuran Biasa</option>
+          <option value="besar">Ukuran Besar (+Rp 5.000)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Promo Iklan Shopee (insentif admin)</label>
+      <select id="promoIklan">
+        <option value="tidak" selected>Tidak Memenuhi Syarat</option>
+        <option value="ya">Memenuhi Syarat (−1% admin)</option>
+      </select>
+    </div>
+  </div>
+
   <!-- Action Buttons -->
   <div class="actions">
     <button type="button" id="btnProses" class="btn btn-primary">⚡ Hitung Sekarang</button>
@@ -350,6 +406,22 @@
     <div class="row" id="rowOngkir" style="display:none">
       <span class="label">Ongkos Kirim Ditanggung</span>
       <span class="value danger" id="rOngkir">- Rp 0</span>
+    </div>
+    <div class="row" id="rowPromoXtra" style="display:none">
+      <span class="label">Biaya Layanan Promo XTRA <span id="lblXtra">4%</span></span>
+      <span class="value danger" id="rPromoXtra">- Rp 0</span>
+    </div>
+    <div class="row" id="rowPromoGo" style="display:none">
+      <span class="label">Biaya Layanan GO XTRA (Gratis Ongkir) <span id="lblGo">4%</span></span>
+      <span class="value danger" id="rPromoGo">- Rp 0</span>
+    </div>
+    <div class="row" id="rowUkuran" style="display:none">
+      <span class="label">Tambahan Ukuran Besar (Shipping)</span>
+      <span class="value danger" id="rUkuran">- Rp 0</span>
+    </div>
+    <div class="row" id="rowIklan" style="display:none">
+      <span class="label">Insentif Iklan Shopee (−1% admin)</span>
+      <span class="value success" id="rIklan">+ Rp 0</span>
     </div>
 
     <div class="row" style="border-top: 2px solid var(--border); margin-top: 8px; padding-top: 14px;">
@@ -467,6 +539,9 @@
         loadKategori();
         document.getElementById("mpNote").textContent = MARKETPLACE[currentMP].nama;
         document.getElementById("feeDetails").innerHTML = MARKETPLACE[currentMP].details;
+        // Show/hide Shopee-only card
+        const cardStatus = document.getElementById("cardStatus");
+        if (cardStatus) cardStatus.style.display = (currentMP === "shopee") ? "block" : "none";
         hitung();
       });
     });
@@ -497,7 +572,8 @@
     document.getElementById("btnReset").addEventListener("click", reset);
 
     // Enter key in any input triggers hitung
-    ["hargaJual", "diskon", "modal", "ongkir", "affiliate", "ads", "kategori"].forEach(id => {
+    ["hargaJual", "diskon", "modal", "ongkir", "affiliate", "ads", "kategori",
+     "statusPenjual", "promoXtra", "promoLive", "promoGo", "ukuranProduk", "promoIklan"].forEach(id => {
       const el = document.getElementById(id);
       el.addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("btnProses").click(); });
     });
@@ -517,6 +593,9 @@
     Object.entries(defaults).forEach(([id, val]) => { document.getElementById(id).value = val; });
     document.getElementById("preorder").checked = false;
     document.getElementById("kategori").selectedIndex = 0;
+    // Reset Shopee-only fields to default
+    const sDefaults = { statusPenjual: "star", promoXtra: "tidak", promoLive: "tidak", promoGo: "tidak", ukuranProduk: "biasa", promoIklan: "tidak" };
+    Object.entries(sDefaults).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val; });
     hitung();
     document.getElementById("hargaJual").focus();
   }
@@ -541,6 +620,8 @@
   // === HITUNG ===
   function hitung() {
     const mp = MARKETPLACE[currentMP];
+    const isShopee = currentMP === "shopee";
+
     const hargaJual = parseFloat(document.getElementById("hargaJual").value) || 0;
     const diskon = parseFloat(document.getElementById("diskon").value) || 0;
     const modal = parseFloat(document.getElementById("modal").value) || 0;
@@ -548,14 +629,48 @@
     const affiliate = parseFloat(document.getElementById("affiliate").value) || 0;
     const ads = parseFloat(document.getElementById("ads").value) || 0;
     const preorder = document.getElementById("preorder").checked;
-    const adminRate = getSelectedRate();
+    let adminRate = getSelectedRate();
+
+    // === Shopee-only: status & program adjustments ===
+    let statusAdj = 0;
+    let biayaPromoXtra = 0;
+    let biayaPromoGo = 0;
+    let biayaUkuran = 0;
+    let insentifIklan = 0;
+
+    if (isShopee) {
+      // Status adjustment (per 2026: Star/Star+ dan Mall bisa beda rate)
+      const statusVal = document.getElementById("statusPenjual").value;
+      if (statusVal === "non-star") statusAdj = -0.25; // Non-Star biasanya sedikit lebih rendah
+      else if (statusVal === "star") statusAdj = 0;     // Star baseline
+      else if (statusVal === "mall") statusAdj = 0.5;   // Mall biasanya premium tier
+
+      adminRate = Math.max(0, adminRate + statusAdj);
+
+      // Promo XTRA: 4% service fee
+      const xtra = document.getElementById("promoXtra").value;
+      if (xtra === "ya") biayaPromoXtra = (hargaJual - diskon) * 0.04;
+
+      // GO XTRA: 4% free shipping subsidy
+      const go = document.getElementById("promoGo").value;
+      if (go === "ya") biayaPromoGo = (hargaJual - diskon) * 0.04;
+
+      // Ukuran Besar: fixed Rp 5.000 shipping
+      const ukuran = document.getElementById("ukuranProduk").value;
+      if (ukuran === "besar") biayaUkuran = 5000;
+
+      // Iklan insentif: -1% admin fee
+      const iklan = document.getElementById("promoIklan").value;
+      if (iklan === "ya") insentifIklan = (hargaJual - diskon) * 0.01;
+    }
 
     const netto = Math.max(0, hargaJual - diskon);
     const biayaAdmin = netto * (adminRate / 100);
     const biayaProses = mp.feeProses;
     const biayaPreorder = (preorder && mp.preorderRate > 0) ? netto * (mp.preorderRate / 100) : 0;
     const biayaAffiliate = netto * (affiliate / 100);
-    const totalPotong = biayaAdmin + biayaProses + biayaPreorder + biayaAffiliate + ads + ongkir;
+    const totalPotong = biayaAdmin + biayaProses + biayaPreorder + biayaAffiliate + ads + ongkir
+                       + biayaPromoXtra + biayaPromoGo + biayaUkuran - insentifIklan;
     const takeRate = netto > 0 ? (totalPotong / netto) * 100 : 0;
     const netProfit = netto - totalPotong - modal;
     const margin = hargaJual > 0 ? (netProfit / hargaJual) * 100 : 0;
@@ -565,7 +680,7 @@
     document.getElementById("rDiskon").textContent = "- " + rp(diskon);
     document.getElementById("rNetto").textContent = rp(netto);
 
-    document.getElementById("lblAdmin").textContent = adminRate + "%";
+    document.getElementById("lblAdmin").textContent = adminRate.toFixed(2) + "%";
     document.getElementById("rAdmin").textContent = "- " + rp(biayaAdmin);
     document.getElementById("rProses").textContent = "- " + rp(biayaProses);
 
@@ -593,6 +708,17 @@
       rowOngkir.style.display = "flex";
       document.getElementById("rOngkir").textContent = "- " + rp(ongkir);
     } else rowOngkir.style.display = "none";
+
+    // Shopee-only rows
+    const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? "flex" : "none"; };
+    show("rowPromoXtra", isShopee && biayaPromoXtra > 0);
+    if (biayaPromoXtra > 0) document.getElementById("rPromoXtra").textContent = "- " + rp(biayaPromoXtra);
+    show("rowPromoGo", isShopee && biayaPromoGo > 0);
+    if (biayaPromoGo > 0) document.getElementById("rPromoGo").textContent = "- " + rp(biayaPromoGo);
+    show("rowUkuran", isShopee && biayaUkuran > 0);
+    if (biayaUkuran > 0) document.getElementById("rUkuran").textContent = "- " + rp(biayaUkuran);
+    show("rowIklan", isShopee && insentifIklan > 0);
+    if (insentifIklan > 0) document.getElementById("rIklan").textContent = "+ " + rp(insentifIklan);
 
     document.getElementById("rTotalPotong").innerHTML = "<strong>- " + rp(totalPotong) + "</strong>";
     document.getElementById("rTakeRate").textContent = pct(takeRate);
