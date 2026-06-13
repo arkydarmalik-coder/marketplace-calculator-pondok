@@ -126,11 +126,50 @@
   .checkbox-row input { width: 18px; height: 18px; cursor: pointer; }
   .checkbox-row label { margin: 0; color: var(--text); cursor: pointer; }
 
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary.processing { opacity: 0.7; cursor: wait; }
+  .btn-secondary {
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+
   .results {
     background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     border: 2px solid var(--accent);
     border-radius: 12px;
     padding: 20px;
+    transition: box-shadow 0.4s, transform 0.4s;
+  }
+  .results.highlight {
+    box-shadow: 0 0 0 3px var(--accent), 0 0 30px rgba(249, 115, 22, 0.4);
+    transform: scale(1.005);
   }
   .results h2 { color: var(--accent-2); margin-bottom: 16px; }
   .row {
@@ -265,6 +304,12 @@
     </div>
   </div>
 
+  <!-- Action Buttons -->
+  <div class="actions">
+    <button type="button" id="btnProses" class="btn btn-primary">⚡ Hitung Sekarang</button>
+    <button type="button" id="btnReset" class="btn btn-secondary">↺ Reset</button>
+  </div>
+
   <!-- Results -->
   <div class="results">
     <h2>📊 Rincian Biaya</h2>
@@ -275,7 +320,7 @@
     </div>
     <div class="row">
       <span class="label">Diskon Seller</span>
-      <span class="value warning">- Rp 0</span>
+      <span class="value warning" id="rDiskon">- Rp 0</span>
     </div>
     <div class="row">
       <span class="label">Harga Netto (dasar hitung)</span>
@@ -426,16 +471,54 @@
       });
     });
 
-    // Inputs
-    ["hargaJual", "diskon", "modal", "ongkir", "affiliate", "ads"].forEach(id => {
-      document.getElementById(id).addEventListener("input", hitung);
+    // Action buttons (primary trigger — user must click to calculate)
+    document.getElementById("btnProses").addEventListener("click", () => {
+      const btn = document.getElementById("btnProses");
+      const results = document.querySelector(".results");
+      btn.classList.add("processing");
+      btn.textContent = "⏳ Menghitung...";
+      // small delay for UX feedback, then run
+      setTimeout(() => {
+        try {
+          hitung();
+          // highlight results box briefly
+          results.classList.add("highlight");
+          setTimeout(() => results.classList.remove("highlight"), 800);
+        } catch (err) {
+          console.error("hitung() error:", err);
+          alert("Terjadi error: " + err.message + "\nCek console untuk detail.");
+        } finally {
+          btn.classList.remove("processing");
+          btn.textContent = "⚡ Hitung Sekarang";
+        }
+      }, 200);
     });
-    document.getElementById("kategori").addEventListener("change", hitung);
-    document.getElementById("preorder").addEventListener("change", hitung);
+
+    document.getElementById("btnReset").addEventListener("click", reset);
+
+    // Enter key in any input triggers hitung
+    ["hargaJual", "diskon", "modal", "ongkir", "affiliate", "ads", "kategori"].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("btnProses").click(); });
+    });
+    document.getElementById("preorder").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("btnProses").click();
+    });
 
     loadKategori();
     document.getElementById("feeDetails").innerHTML = MARKETPLACE[currentMP].details;
+    // initial empty render so layout shows zeros (no JS error)
     hitung();
+  }
+
+  // === RESET ===
+  function reset() {
+    const defaults = { hargaJual: 150000, diskon: 20000, modal: 60000, ongkir: 0, affiliate: 0, ads: 0 };
+    Object.entries(defaults).forEach(([id, val]) => { document.getElementById(id).value = val; });
+    document.getElementById("preorder").checked = false;
+    document.getElementById("kategori").selectedIndex = 0;
+    hitung();
+    document.getElementById("hargaJual").focus();
   }
 
   function loadKategori() {
@@ -479,7 +562,7 @@
 
     // Update DOM
     document.getElementById("rJual").textContent = rp(hargaJual);
-    document.querySelector("#results .row:nth-child(2) .value").textContent = "- " + rp(diskon);
+    document.getElementById("rDiskon").textContent = "- " + rp(diskon);
     document.getElementById("rNetto").textContent = rp(netto);
 
     document.getElementById("lblAdmin").textContent = adminRate + "%";
