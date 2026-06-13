@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kalkulator Biaya Admin Marketplace 2026</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card-2: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #f97316;
+    --accent-2: #fb923c;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --border: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 16px;
+    line-height: 1.5;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 1.75rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 4px;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; }
+
+  .marketplace-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: var(--card);
+    padding: 6px;
+    border-radius: 12px;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--accent-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  input[type="number"], select {
+    width: 100%;
+    padding: 12px;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    transition: border 0.2s;
+  }
+  input[type="number"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--card-2);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .checkbox-row input { width: 18px; height: 18px; cursor: pointer; }
+  .checkbox-row label { margin: 0; color: var(--text); cursor: pointer; }
+
+  .results {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .results h2 { color: var(--accent-2); margin-bottom: 16px; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .row:last-child { border-bottom: none; }
+  .row .label { color: var(--muted); font-size: 0.9rem; }
+  .row .value { font-weight: 600; font-family: "SF Mono", Monaco, monospace; }
+  .row .value.danger { color: var(--danger); }
+  .row .value.success { color: var(--success); }
+  .row .value.warning { color: var(--warning); }
+
+  .total-row {
+    background: var(--card-2);
+    margin: 12px -20px -20px -20px;
+    padding: 16px 20px;
+    border-radius: 0 0 10px 10px;
+    border-top: 2px solid var(--accent);
+  }
+  .total-row .label { color: var(--text); font-weight: 600; }
+  .total-row .value { font-size: 1.2rem; }
+
+  .profit-positive { color: var(--success); }
+  .profit-negative { color: var(--danger); }
+
+  .info-box {
+    background: rgba(249, 115, 22, 0.1);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+  .info-box strong { color: var(--accent-2); }
+
+  details {
+    background: var(--card-2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+  }
+  details summary {
+    cursor: pointer;
+    color: var(--accent-2);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  details ul { margin: 12px 0 0 20px; font-size: 0.85rem; color: var(--muted); }
+  details li { margin-bottom: 4px; }
+
+  footer {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  footer a { color: var(--accent-2); text-decoration: none; }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+    h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🛒 Kalkulator Biaya Admin Marketplace</h1>
+    <p class="subtitle">Hitung take rate Shopee & TikTok Shop 2026</p>
+  </header>
+
+  <!-- Marketplace Tabs -->
+  <div class="marketplace-tabs" role="tablist">
+    <button class="tab active" data-mp="shopee" role="tab">🟠 Shopee</button>
+    <button class="tab" data-mp="tiktok" role="tab">⚫ TikTok Shop</button>
+  </div>
+
+  <!-- Input Card -->
+  <div class="card">
+    <h2>📦 Data Produk</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Harga Jual (Rp)</label>
+        <input type="number" id="hargaJual" value="150000" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Diskon Seller (Rp)</label>
+        <input type="number" id="diskon" value="20000" min="0" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Kategori Produk</label>
+      <select id="kategori"></select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💰 Biaya & Marketing</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Modal / COGS (Rp)</label>
+        <input type="number" id="modal" value="60000" min="0" />
+      </div>
+      <div class="form-group">
+        <label>Ongkos Kirim Ditanggung (Rp)</label>
+        <input type="number" id="ongkir" value="0" min="0" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Affiliate Commission (%)</label>
+        <input type="number" id="affiliate" value="0" min="0" max="100" step="0.5" />
+      </div>
+      <div class="form-group">
+        <label>Ad Spend / Unit (Rp)</label>
+        <input type="number" id="ads" value="0" min="0" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-row">
+        <input type="checkbox" id="preorder" />
+        <label for="preorder">Produk Pre-Order (+3% untuk Shopee)</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results">
+    <h2>📊 Rincian Biaya</h2>
+
+    <div class="row">
+      <span class="label">Harga Jual</span>
+      <span class="value" id="rJual">Rp 0</span>
+    </div>
+    <div class="row">
+      <span class="label">Diskon Seller</span>
+      <span class="value warning">- Rp 0</span>
+    </div>
+    <div class="row">
+      <span class="label">Harga Netto (dasar hitung)</span>
+      <span class="value" id="rNetto">Rp 0</span>
+    </div>
+
+    <div class="row" id="rowAdmin">
+      <span class="label">Biaya Admin <span id="lblAdmin">10%</span></span>
+      <span class="value danger" id="rAdmin">- Rp 0</span>
+    </div>
+    <div class="row" id="rowProses">
+      <span class="label">Biaya Proses Pesanan</span>
+      <span class="value danger" id="rProses">- Rp 0</span>
+    </div>
+    <div class="row" id="rowPreorder" style="display:none">
+      <span class="label">Biaya Layanan Pre-Order (3%)</span>
+      <span class="value danger" id="rPreorder">- Rp 0</span>
+    </div>
+    <div class="row" id="rowAffiliate" style="display:none">
+      <span class="label">Affiliate Commission <span id="lblAff">0%</span></span>
+      <span class="value danger" id="rAffiliate">- Rp 0</span>
+    </div>
+    <div class="row" id="rowAds" style="display:none">
+      <span class="label">Ad Spend</span>
+      <span class="value danger" id="rAds">- Rp 0</span>
+    </div>
+    <div class="row" id="rowOngkir" style="display:none">
+      <span class="label">Ongkos Kirim Ditanggung</span>
+      <span class="value danger" id="rOngkir">- Rp 0</span>
+    </div>
+
+    <div class="row" style="border-top: 2px solid var(--border); margin-top: 8px; padding-top: 14px;">
+      <span class="label"><strong>Total Potongan Marketplace</strong></span>
+      <span class="value danger" id="rTotalPotong"><strong>- Rp 0</strong></span>
+    </div>
+
+    <div class="row">
+      <span class="label">Take Rate (% dari harga netto)</span>
+      <span class="value warning" id="rTakeRate">0%</span>
+    </div>
+
+    <div class="total-row">
+      <div class="row" style="border:none; padding: 4px 0;">
+        <span class="label">Modal Produk</span>
+        <span class="value danger" id="rModal">- Rp 0</span>
+      </div>
+      <div class="row" style="border:none; padding: 4px 0;">
+        <span class="label"><strong>NET PROFIT / Unit</strong></span>
+        <span class="value" id="rProfit" style="font-size: 1.4rem;">Rp 0</span>
+      </div>
+      <div class="row" style="border:none; padding: 4px 0;">
+        <span class="label">Profit Margin</span>
+        <span class="value" id="rMargin">0%</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>ℹ️ Catatan:</strong> <span id="mpNote">Shopee</span> mengenakan biaya di luar iklan/affiliate. Total take rate aktual di lapangan (dengan program gratis ongkir, voucher, dan SPayLater) bisa mencapai <strong>15–25%</strong> untuk Shopee dan <strong>15–30%</strong> untuk TikTok Shop.
+    </div>
+
+    <details>
+      <summary>Lihat struktur biaya lengkap 2026</summary>
+      <div id="feeDetails" style="margin-top: 12px;"></div>
+    </details>
+  </div>
+
+  <footer>
+    <p>Data berdasarkan pengumuman resmi Shopee (Jan 2026) & TikTok Shop Seller Center (Mei 2026).</p>
+    <p style="margin-top: 4px;">Tarif dapat berubah sewaktu-waktu — selalu rujuk ke Seller Center masing-masing.</p>
+  </footer>
+</div>
+
+<script>
+  // === DATA MARKETPLACE 2026 ===
+  const MARKETPLACE = {
+    shopee: {
+      nama: "Shopee",
+      feeProses: 1250, // Rp per transaksi
+      kategori: [
+        { value: "A", label: "Kategori A — 10% (Fashion, FMCG, Lifestyle, makanan, mainan, rumah)", rate: 10 },
+        { value: "B", label: "Kategori B — 9.5% (Elektronik tertentu, skincare, kosmetik, olahraga)", rate: 9.5 },
+        { value: "C", label: "Kategori C — 6.75% (Susu formula, suplemen, makanan bayi)", rate: 6.75 },
+        { value: "D", label: "Kategori D — 5.25% (Laptop, smartphone, tablet high-end)", rate: 5.25 },
+        { value: "E", label: "Kategori E — 4.25% (Emas, perhiasan, logam mulia)", rate: 4.25 },
+        { value: "X", label: "Kategori Khusus — 2.5% (E-money, voucher, tiket)", rate: 2.5 }
+      ],
+      preorderRate: 3,
+      preorderNote: "Kecuali produk baru 30 hari & Shopee Live",
+      details: `
+        <ul>
+          <li><strong>Kategori A (10%):</strong> Fashion pria/wanita, sepatu, tas, aksesoris, FMCG, makanan, minuman, mainan, rumah</li>
+          <li><strong>Kategori B (9–9.5%):</strong> Elektronik tertentu, skincare, kosmetik, olahraga</li>
+          <li><strong>Kategori C (6.5–6.75%):</strong> Susu formula, suplemen, makanan bayi</li>
+          <li><strong>Kategori D (5.25%):</strong> Laptop, smartphone, tablet high-end</li>
+          <li><strong>Kategori E (4.25%):</strong> Logam mulia, emas, perhiasan</li>
+          <li><strong>Khusus (2.5%):</strong> E-money, voucher, tiket</li>
+          <li><strong>Pre-Order:</strong> +3% (kecuali produk baru 30 hari & Shopee Live)</li>
+          <li><strong>Biaya proses:</strong> Rp 1.250/transaksi (jika ada)</li>
+          <li><strong>Take rate aktual:</strong> 6–13% tanpa iklan, 15–25% dengan iklan & program</li>
+        </ul>
+      `
+    },
+    tiktok: {
+      nama: "TikTok Shop",
+      feeProses: 1250, // Rp per transaksi
+      kategori: [
+        { value: "A", label: "Kategori A — 10% (Fashion, beauty, umum)", rate: 10 },
+        { value: "B", label: "Kategori B — 8% (Elektronik, rumah tangga)", rate: 8 },
+        { value: "C", label: "Kategori C — 6.97% (Makanan, kesehatan, sub-kategori lain)", rate: 6.97 },
+        { value: "D", label: "Kategori D — 5% (Voucher digital, e-money)", rate: 5 },
+        { value: "E", label: "Kategori E — 3% (Program khusus, new seller 30-90 hari)", rate: 3 }
+      ],
+      preorderRate: 0, // TikTok tidak pakai preorder fee
+      preorderNote: "TikTok tidak mengenakan biaya pre-order khusus",
+      details: `
+        <ul>
+          <li><strong>Komisi platform:</strong> 3%–10% (tergantung kategori & status seller)</li>
+          <li><strong>New seller:</strong> Diskon 50% untuk 30–90 hari pertama</li>
+          <li><strong>Biaya proses:</strong> Rp 1.250/transaksi</li>
+          <li><strong>Biaya Layanan Logistik:</strong> Mulai 1 Mei 2026 (variatif per kategori)</li>
+          <li><strong>Affiliate commission:</strong> 5%–25% (opsional, set seller)</li>
+          <li><strong>Ad spend:</strong> 10–20% revenue (opsional, via TikTok Ads)</li>
+          <li><strong>Take rate aktual:</strong> 8–12% tanpa iklan, 15–30% dengan ekosistem penuh</li>
+        </ul>
+        <p style="margin-top: 8px; color: var(--muted); font-size: 0.8rem;">⚠️ Indonesia tidak expose public rate live — angka di atas range yang dikonfirmasi. Cek Seller Center untuk nilai exact.</p>
+      `
+    }
+  };
+
+  let currentMP = "shopee";
+
+  // === FORMAT RUPIAH ===
+  const rp = (n) => "Rp " + Math.round(n).toLocaleString("id-ID");
+  const pct = (n) => n.toFixed(2) + "%";
+
+  // === INIT ===
+  function init() {
+    // Tabs
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentMP = tab.dataset.mp;
+        loadKategori();
+        document.getElementById("mpNote").textContent = MARKETPLACE[currentMP].nama;
+        document.getElementById("feeDetails").innerHTML = MARKETPLACE[currentMP].details;
+        hitung();
+      });
+    });
+
+    // Inputs
+    ["hargaJual", "diskon", "modal", "ongkir", "affiliate", "ads"].forEach(id => {
+      document.getElementById(id).addEventListener("input", hitung);
+    });
+    document.getElementById("kategori").addEventListener("change", hitung);
+    document.getElementById("preorder").addEventListener("change", hitung);
+
+    loadKategori();
+    document.getElementById("feeDetails").innerHTML = MARKETPLACE[currentMP].details;
+    hitung();
+  }
+
+  function loadKategori() {
+    const sel = document.getElementById("kategori");
+    sel.innerHTML = "";
+    MARKETPLACE[currentMP].kategori.forEach(k => {
+      const opt = document.createElement("option");
+      opt.value = k.value;
+      opt.dataset.rate = k.rate;
+      opt.textContent = k.label;
+      sel.appendChild(opt);
+    });
+  }
+
+  function getSelectedRate() {
+    const sel = document.getElementById("kategori");
+    return parseFloat(sel.options[sel.selectedIndex].dataset.rate) || 0;
+  }
+
+  // === HITUNG ===
+  function hitung() {
+    const mp = MARKETPLACE[currentMP];
+    const hargaJual = parseFloat(document.getElementById("hargaJual").value) || 0;
+    const diskon = parseFloat(document.getElementById("diskon").value) || 0;
+    const modal = parseFloat(document.getElementById("modal").value) || 0;
+    const ongkir = parseFloat(document.getElementById("ongkir").value) || 0;
+    const affiliate = parseFloat(document.getElementById("affiliate").value) || 0;
+    const ads = parseFloat(document.getElementById("ads").value) || 0;
+    const preorder = document.getElementById("preorder").checked;
+    const adminRate = getSelectedRate();
+
+    const netto = Math.max(0, hargaJual - diskon);
+    const biayaAdmin = netto * (adminRate / 100);
+    const biayaProses = mp.feeProses;
+    const biayaPreorder = (preorder && mp.preorderRate > 0) ? netto * (mp.preorderRate / 100) : 0;
+    const biayaAffiliate = netto * (affiliate / 100);
+    const totalPotong = biayaAdmin + biayaProses + biayaPreorder + biayaAffiliate + ads + ongkir;
+    const takeRate = netto > 0 ? (totalPotong / netto) * 100 : 0;
+    const netProfit = netto - totalPotong - modal;
+    const margin = hargaJual > 0 ? (netProfit / hargaJual) * 100 : 0;
+
+    // Update DOM
+    document.getElementById("rJual").textContent = rp(hargaJual);
+    document.querySelector("#results .row:nth-child(2) .value").textContent = "- " + rp(diskon);
+    document.getElementById("rNetto").textContent = rp(netto);
+
+    document.getElementById("lblAdmin").textContent = adminRate + "%";
+    document.getElementById("rAdmin").textContent = "- " + rp(biayaAdmin);
+    document.getElementById("rProses").textContent = "- " + rp(biayaProses);
+
+    const rowPO = document.getElementById("rowPreorder");
+    if (biayaPreorder > 0) {
+      rowPO.style.display = "flex";
+      document.getElementById("rPreorder").textContent = "- " + rp(biayaPreorder);
+    } else rowPO.style.display = "none";
+
+    const rowAff = document.getElementById("rowAffiliate");
+    if (biayaAffiliate > 0) {
+      rowAff.style.display = "flex";
+      document.getElementById("lblAff").textContent = affiliate + "%";
+      document.getElementById("rAffiliate").textContent = "- " + rp(biayaAffiliate);
+    } else rowAff.style.display = "none";
+
+    const rowAds = document.getElementById("rowAds");
+    if (ads > 0) {
+      rowAds.style.display = "flex";
+      document.getElementById("rAds").textContent = "- " + rp(ads);
+    } else rowAds.style.display = "none";
+
+    const rowOngkir = document.getElementById("rowOngkir");
+    if (ongkir > 0) {
+      rowOngkir.style.display = "flex";
+      document.getElementById("rOngkir").textContent = "- " + rp(ongkir);
+    } else rowOngkir.style.display = "none";
+
+    document.getElementById("rTotalPotong").innerHTML = "<strong>- " + rp(totalPotong) + "</strong>";
+    document.getElementById("rTakeRate").textContent = pct(takeRate);
+    document.getElementById("rModal").textContent = "- " + rp(modal);
+
+    const profitEl = document.getElementById("rProfit");
+    profitEl.textContent = rp(netProfit);
+    profitEl.className = "value " + (netProfit >= 0 ? "profit-positive" : "profit-negative");
+
+    const marginEl = document.getElementById("rMargin");
+    marginEl.textContent = pct(margin);
+    marginEl.className = "value " + (margin >= 0 ? "profit-positive" : "profit-negative");
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
